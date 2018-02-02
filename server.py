@@ -19,15 +19,44 @@ The new transaction request body should look like the following
 
 This server runs on port 5000
 '''
+
 app = Flask(__name__)
 # unique node id
 node_identifier = str(uuid4()).replace('-', '')
 blockchain = Blockchain()
 
+'''
+What to do in mining
+1. Calculate PoW
+2. Reward with a new transaction of 1
+3. Create a new block in the chain
+'''
+
 
 @app.route('/mine', methods=['GET'])
 def mine():
-    return "We'll mine a block"
+    # 1. Calc PoW
+    last_block = blockchain.last_block
+    proof = blockchain.proof_of_work(last_block['proof'])
+
+    # 2. Reward 1 coin with a transaction
+    # recipient is us, because we mined it precious!!
+    blockchain.new_transaction(sender=0, recipient=node_identifier, amount=1)
+
+    # 3. Create a new block
+    previous_hash = blockchain.hash(last_block)
+    block = blockchain.new_block(proof, previous_hash)
+
+    response = {
+        'message': 'New block forged',
+        'index': block['index'],
+        'transactions': block['transactions'],
+        'proof': block['proof'],
+        'previous_hash': block['previous_hash']
+    }
+
+    return jsonify(response), 200
+
 
 
 @app.route('/transactions/new', methods=['POST'])
