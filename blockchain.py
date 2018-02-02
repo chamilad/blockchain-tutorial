@@ -3,6 +3,8 @@ import json
 from time import time
 from urllib.parse import urlparse
 
+import requests
+
 
 class Blockchain(object):
     def __init__(self):
@@ -45,6 +47,65 @@ class Blockchain(object):
         parsed_url = urlparse(address)
         self.nodes.add(parsed_url.netloc)
 
+    def valid_chain(self, chain):
+        """
+        Check if the blockchain is valid in terms of proof and hash
+        :param chain:
+        :return:
+        """
+        last_block = chain[0]
+        current_index = 1
+
+        while current_index < len(chain):
+            block = chain[current_index]
+            print(f'{last_block}')
+            print(f'{block}')
+            print("\n----------------\n")
+            # verify hash integrity
+            if block['previous_hash'] != self.hash(last_block):
+                return False
+
+            # verify proof integrity
+            if not self.valid_proof(last_block['proof'], block['proof']):
+                return False
+
+            last_block = block
+            current_index += 1
+
+        return True
+
+    def resolve_conflicts(self):
+        """
+        Consensus
+        Our rule: longest valid chain is the authoritative
+
+        :return: True if conflicts were found and resolved, False if no conflicts found
+        """
+        neighbours = self.nodes
+        new_chain = None
+
+        # anything that goes beyond should replace my existing one
+        max_length = len(self.chain)
+
+        # check chains from all nodes
+        for node in neighbours:
+            response = requests.get(f'http://{node}/chain')
+
+            if response.status_code == 200:
+                their_length = response.json()['length']
+                their_chain = response.json()['chain']
+
+                # check if theirs is longer
+                if their_length < max_length and self.valid_chain(their_chain):
+                    max_length = their_length
+                    new_chain = their_chain
+
+        # after going through the neighbour list
+        if new_chain:
+            self.chain = new_chain
+            return True
+
+        return False
 
     @staticmethod
     def valid_proof(last_proof, proof):
