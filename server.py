@@ -85,6 +85,51 @@ def full_chain():
     return jsonify(response), 200
 
 
+'''
+Blockchains are distributed, which requires a verification step to check whether we are operating on the same 
+blockchain. This is called consensus.
+
+Nodes should be aware of other nodes in the network. i.e. there should be a registry of nodes.
+'''
+
+
+@app.route('/nodes/register', methods=['POST'])
+def register_nodes():
+    values = request.get_json()
+
+    nodes = values.get('nodes')
+    if nodes is None:
+        return "Error: Please supply a list of node addresses.", 400
+
+    for node in nodes:
+        blockchain.register_node(node)
+
+    response = {
+        'message': "New nodes have been added",
+        'total_nodes': list(blockchain.nodes)
+    }
+
+    return jsonify(response), 201
+
+
+@app.route('/nodes/resolve', methods=['GET'])
+def consensus():
+    replaced = blockchain.resolve_conflicts()
+
+    if replaced:
+        response = {
+            'message': "Our chain was replaced",
+            'new_chain': blockchain.chain
+        }
+    else:
+        response = {
+            'message': 'Our chain is authoritative',
+            'chain': blockchain.chain
+        }
+
+    return jsonify(response), 200
+
+
 if __name__ == '__main__':
     print(f'Node ID: {node_identifier}')
     app.run(host='0.0.0.0', port=5000)
