@@ -1,6 +1,7 @@
 import hashlib
 import json
 from time import time
+from urllib.parse import urlparse
 
 
 class Blockchain(object):
@@ -10,6 +11,9 @@ class Blockchain(object):
 
         # create the genesis block with no predecessors when the blockchain is initiated
         self.new_block(previous_hash=1, proof=100)
+
+        # unique node addresses, no duplicates
+        self.nodes = set()
 
     '''
     the proof is the result of mining / proof of work
@@ -31,6 +35,16 @@ class Blockchain(object):
             proof += 1
 
         return proof
+
+    def register_node(self, address):
+        """
+        Add a new node to the list of nodes maintaining the blockchain
+        :param address: in the format of http://<IP>:<PORT>
+        :return:
+        """
+        parsed_url = urlparse(address)
+        self.nodes.add(parsed_url.netloc)
+
 
     @staticmethod
     def valid_proof(last_proof, proof):
