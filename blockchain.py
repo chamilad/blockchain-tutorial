@@ -9,8 +9,34 @@ class Blockchain(object):
         self.current_transactions = []
 
         # create the genesis block with no predecessors when the blockchain is initiated
-        # the proof is the result of mining / proof of work
         self.new_block(previous_hash=1, proof=100)
+
+    '''
+    the proof is the result of mining / proof of work
+    the goal of PoW (proof of work) is to find a number which solves a problem/challenge
+    the number must be difficult to find, but easy to verify computationally
+    PoW algorithm is called the Hashcash
+    mining is finding numbers from this hashcash. A successful mining is awarded with a coin,
+    in a transaction. The numbers are easily verifiable
+    
+    the following PoW is to find a number p that when hashed with the previous pow will produce a hash 
+    value with 4 leading 0s
+    
+    the more these numbers are checked for, the more time it takes to produce a pow
+    '''
+
+    def proof_of_work(self, last_proof):
+        proof = 0
+        while self.valid_proof(last_proof, proof) is False:
+            proof += 1
+
+        return proof
+
+    @staticmethod
+    def valid_proof(last_proof, proof):
+        guess = f'{last_proof}{proof}'.encode()
+        guess_hash = hashlib.sha256(guess).hexdigest()
+        return guess_hash[:4] == "0000"
 
     '''
     Anatomy of a block
@@ -29,6 +55,7 @@ class Blockchain(object):
             'previous_hash': "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824"
         }
     '''
+
     def new_block(self, proof, previous_hash=None):
         block = {
             'index': len(self.chain) + 1,
