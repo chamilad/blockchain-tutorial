@@ -1,0 +1,82 @@
+{
+	"info": {
+		"name": "blockchain-tutorial",
+		"_postman_id": "f00c0f36-8919-cd28-7800-1031f05f7b02",
+		"description": "A set of curl requests to interact with the primilinary blockchain implementation with a tutorial",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "/mine",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "http://localhost:5000/mine",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"mine"
+					]
+				},
+				"description": "/mine a block"
+			},
+			"response": []
+		},
+		{
+			"name": "/transactions/new",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n \"sender\": \"my address\",\n \"recipient\": \"someone else's address\",\n \"amount\": 5\n}"
+				},
+				"url": {
+					"raw": "http://localhost:5000/transactions/new",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"transactions",
+						"new"
+					]
+				},
+				"description": "Add a new transaction"
+			},
+			"response": []
+		},
+		{
+			"name": "/chain",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "http://localhost:5000/chain",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"chain"
+					]
+				},
+				"description": "get chain"
+			},
+			"response": []
+		}
+	]
+}
